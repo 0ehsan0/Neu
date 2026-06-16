@@ -1,65 +1,124 @@
-<div id="titulo">Black hole<small>lente gravitacional · disco volumétrico · bloom HDR</small></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Singularity | @phrazel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #010103;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        /* باکس اطلاعات شیک جانبی */
+        #titulo {
+            position: absolute;
+            top: 30px; left: 30px;
+            color: #fff; z-index: 10;
+            letter-spacing: 4px; font-weight: 800; font-size: 1.6rem;
+            text-transform: uppercase;
+        }
+        #titulo small {
+            display: block; font-size: 0.65rem; letter-spacing: 2px;
+            color: #ff8c00; margin-top: 5px; font-weight: 400;
+        }
+        #datos {
+            position: absolute; bottom: 30px; left: 30px;
+            color: #aaa; z-index: 10; font-size: 0.75rem; line-height: 1.6;
+            font-family: monospace; background: rgba(0,0,0,0.5);
+            padding: 12px 18px; border-radius: 8px;
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);
+        }
+        #datos b { color: #ff4500; }
 
-<div id="datos">
-	radio de Schwarzschild <b>r&#8347; = 1.0</b><br>
-	esfera de fotones <b>r = 1.5 r&#8347;</b><br>
-	borde interno del disco <b>r &#8776; 3 r&#8347;</b>
-</div>
+        /* مرکز ثقل و پنجره ارتباطی ثابت */
+        .singularity-core {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15; text-align: center;
+            padding: 30px 40px; border-radius: 16px;
+            background: rgba(4, 4, 8, 0.5);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+        .singularity-core h2 {
+            color: #fff; font-size: 1.8rem; margin-bottom: 20px;
+            letter-spacing: 2px; font-weight: 700;
+        }
+        .btn {
+            display: inline-block; text-decoration: none; color: #fff;
+            background: linear-gradient(135deg, #ff4500, #ff8c00);
+            padding: 12px 35px; font-weight: bold; font-size: 0.9rem;
+            border-radius: 25px; letter-spacing: 1px; transition: all 0.3s ease;
+            border: none;
+        }
+        .btn:hover { 
+            box-shadow: 0 0 30px #ff8c00; 
+            transform: scale(1.05); 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
 
-<div id="panel">
-	<div class="fila">
-		<label>Texto en el espacio</label>
-		<input id="iTexto" type="text" value="BLACK HOLE" maxlength="26"
-					 autocomplete="off" spellcheck="false" placeholder="vacío = sin texto">
-	</div>
-	<div class="fila">
-		<label>Exposición <b id="vBrillo">1.0</b></label>
-		<input id="sBrillo" type="range" min="0.2" max="2.5" step="0.05" value="1">
-	</div>
-	<div class="fila">
-		<label>Resplandor <b id="vBloom">0.9</b></label>
-		<input id="sBloom" type="range" min="0" max="2" step="0.05" value="0.9">
-	</div>
-	<div class="fila">
-		<label>Velocidad orbital <b id="vVel">1.0</b></label>
-		<input id="sVel" type="range" min="0" max="3" step="0.05" value="1">
-	</div>
-	<div class="fila">
-		<label>Temperatura <b id="vTemp">0.45</b></label>
-		<input id="sTemp" type="range" min="0" max="1" step="0.01" value="0.45">
-	</div>
-	<div class="fila toggles">
-		<button id="bDoppler" class="on">Doppler</button>
-		<button id="bFondo" class="on">Nebulosa</button>
-		<button id="bAuto" class="on">Órbita</button>
-	</div>
-	<div class="etiqueta">Calidad</div>
-	<div class="fila toggles">
-		<button id="qBaja">Baja</button>
-		<button id="qMedia" class="on">Media</button>
-		<button id="qAlta">Alta</button>
-	</div>
-</div>
+    <div id="titulo">Black Hole<small>gravitational lensing · accretion disk · native render</small></div>
 
-<div id="ayuda">
-	arrastra · orbitar<br>
-	rueda / pellizco · acercar<br>
-	doble clic · reiniciar
-</div>
+    <div id="datos">
+        schwarzschild radius <b>rₛ = 1.0</b><br>
+        photon sphere <b>r = 1.5 rₛ</b><br>
+        inner disk edge <b>r ≈ 3 rₛ</b>
+    </div>
 
-<div id="error"><h2>Diagnóstico</h2><div id="errorTexto"></div></div>
+    <div class="singularity-core">
+        <h2>@phrazel</h2>
+        <a href="https://t.me/phrazel" target="_blank" class="btn">ENTER VOID</a>
+    </div>
 
-<script>
-	function mostrarError(msg){
-		var caja = document.getElementById('error');
-		var txt  = document.getElementById('errorTexto');
-		caja.style.display = 'block';
-		txt.textContent += msg + '\n\n';
-	}
-	window.onerror = function(msg, src, linea){
-		mostrarError('Error JS: ' + msg + ' (línea ' + linea + ')');
-	};
-</script>
+    <canvas id="spaceCanvas"></canvas>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-				onerror="mostrarError('No se pudo cargar Three.js desde el CDN. Revisa tu conexión o si algo bloquea cdnjs.cloudflare.com.')"></script>
+    <script>
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        let centerX = width / 2;
+        let centerY = height / 2;
+
+        const particleCount = 400;
+        const particles = [];
+        const colors = ['#ff4500', '#ff8c00', '#ffd700', '#ff7f50', '#ffffff'];
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.radius = Math.random() * (Math.max(width, height) / 1.5);
+                this.angle = Math.random() * Math.PI * 2;
+            }
+
+            reset() {
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.max(width, height) / 1.5 + Math.random() * 50;
+                this.speed = 0.8 + Math.random() * 1.8; 
+                this.rotationSpeed = 0.015 + Math.random() * 0.02; 
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.size = 0.8 + Math.random() * 1.8;
+                this.opacity = 0.1
