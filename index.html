@@ -13,19 +13,8 @@
         body {
             background: #000000;
             overflow: hidden;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: sans-serif;
             position: relative;
-        }
-        /* افکت خطوط تلویزیونی برای حس سایبرپانک */
-        body::before {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
-            z-index: 100;
-            background-size: 100% 4px;
-            pointer-events: none;
         }
         canvas {
             display: block;
@@ -33,12 +22,8 @@
             top: 0;
             left: 0;
             z-index: 1;
-            /* انیمیشن لود ناگهانی پس‌زمینه */
-            opacity: 0;
-            animation: nasaIntroCanvas 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            animation-delay: 0.5s;
         }
-        /* 🌌 باکس هسته مرکزی با افکت لود ناگهانی ناسا */
+        /* 🌌 باکس هسته مرکزی سیاه‌چاله */
         .singularity-core {
             position: absolute;
             top: 50%;
@@ -53,19 +38,109 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 0, 0.2);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid #00ff00;
             
-            /* وضعیت اولیه: مخفی و کوچک */
+            /* وضعیت اولیه برای انیمیشن ورود ناگهانی ناسا */
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.7);
-            filter: blur(10px);
+            transform: translate(-50%, -50%) scale(0.5);
             
-            /* انیمیشن اصلی ورود */
-            animation: nasaIntroCore 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            animation-delay: 0.8s; /* کمی بعد از مشکی مطلق ظاهر می‌شود */
+            /* اجرای انیمیشن ورود */
+            animation: nasaIntro 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation-delay: 0.3s;
         }
         h1 {
+            font-size: 2.4rem;
+            color: #00ff00;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px #00ff00;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            color: #00ff00;
+            background: #000000;
+            border: 1px solid #00ff00;
+            padding: 12px 30px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-radius: 25px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 25px #00ff00;
+            transform: scale(1.05);
+            cursor: pointer;
+        }
 
+        /* 🎬 انیمیشن ورود ناگهانی و انفجاری ناسا */
+        @keyframes nasaIntro {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+                box-shadow: 0 0 0px rgba(0, 255, 0, 0);
+            }
+            70% {
+                box-shadow: 0 0 40px #00ff00; /* شلیک نور سبز */
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="blackholeCanvas"></canvas>
+
+    <div class="singularity-core">
+        <h1>@phrazel</h1>
+        <a href="https://t.me/phrazel" target="_blank" class="btn">ENTER VOID</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('blackholeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        let centerX = width / 2;
+        let centerY = height / 2;
+
+        const particleCount = 350; // بهینه‌سازی تعداد برای سرعت بیشتر
+        const particles = [];
+        const chars = ['0', '1', 'Ø', 'X', 'F', 'A', '7', '9', '•'];
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.random() * (Math.max(width, height) / 2);
+            }
+
+            reset() {
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.max(width, height) / 2 + Math.random() * 50;
+                this.speed = 0.8 + Math.random() * 1.5; 
+                this.rotationSpeed = 0.015 + Math.random() * 0.02; 
+                this.char = chars[Math.floor(Math.random() * chars.length)];
+                this.colorOpacity = 0.1;
+                this.fontSize = 11 + Math.random() * 6;
+            }
+
+            update() {
+                this.radius -= this.speed;
+                this.angle += this.rotationSpeed;
+
+                if (this.radius < 300 && this.radius > 140) {
+                    this.colorOpacity = (300 - this.radius) / 160;
+                } else if (this
