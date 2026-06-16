@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Singularity | @phrazel</title>
+    <title>NASA Singularity | @phrazel</title>
     <style>
         * {
             margin: 0;
@@ -14,8 +14,8 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #010103;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #020205;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             user-select: none;
         }
         canvas {
@@ -25,46 +25,46 @@
             left: 0;
             z-index: 1;
         }
-        /* باکس شیشه‌ای مرکزی اختصاصی شما */
+        /* پنجره مدرن شیشه‌ای نیمه‌شفاف وسط صفحه */
         .singularity-core {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             z-index: 15; 
             text-align: center;
-            padding: 35px 45px; 
-            border-radius: 16px;
-            background: rgba(4, 4, 8, 0.45);
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 140, 0, 0.25);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,140,0,0.05);
+            padding: 35px 50px; 
+            border-radius: 24px;
+            background: rgba(3, 3, 6, 0.4);
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 110, 0, 0.2);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.9);
         }
         .singularity-core h2 {
             color: #fff; 
-            font-size: 2rem; 
-            margin-bottom: 22px;
-            letter-spacing: 2px; 
-            font-weight: 700;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-size: 2.2rem; 
+            margin-bottom: 25px;
+            letter-spacing: 3px; 
+            font-weight: 800;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.6);
         }
         .btn {
             display: inline-block; 
             text-decoration: none; 
             color: #fff;
-            background: linear-gradient(135deg, #ff4500, #ff8c00);
-            padding: 13px 38px; 
+            background: linear-gradient(135deg, #ff3700, #ff7700);
+            padding: 14px 42px; 
             font-weight: bold; 
             font-size: 0.95rem;
-            border-radius: 25px; 
+            border-radius: 30px; 
             letter-spacing: 1px; 
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             border: none;
-            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(255, 55, 0, 0.35);
         }
         .btn:hover { 
-            box-shadow: 0 0 30px #ff8c00, 0 0 10px #ff4500; 
-            transform: scale(1.05); 
+            box-shadow: 0 0 40px #ff7700, 0 0 15px #ff3700; 
+            transform: scale(1.06) translateY(-1px); 
             cursor: pointer; 
         }
     </style>
@@ -88,53 +88,61 @@
         let centerX = width / 2;
         let centerY = height / 2;
 
-        const particleCount = 550; // تراکم بالای ذرات برای ایجاد کیفیت غنی
+        const particleCount = 650; // تعداد فوتون بالا برای پر کردن فضا
         const particles = [];
-        const colors = ['#ff4500', '#ff8c00', '#ffd700', '#ff6347', '#ffffff'];
+        const colors = ['#ff3300', '#ff6600', '#ffaa00', '#ffd27f', '#ffffff'];
 
         class Particle {
             constructor() {
                 this.reset();
-                this.radius = Math.random() * (Math.max(width, height) / 1.4);
+                // پخش تصادفی اولیه در فضا
+                this.radius = Math.random() * (Math.max(width, height) / 1.3);
                 this.angle = Math.random() * Math.PI * 2;
             }
 
             reset() {
                 this.angle = Math.random() * Math.PI * 2;
-                this.radius = Math.max(width, height) / 1.4 + Math.random() * 50;
-                this.speed = 1.0 + Math.random() * 2.0; 
-                this.rotationSpeed = 0.018 + Math.random() * 0.025; 
+                this.radius = Math.max(width, height) / 1.3 + Math.random() * 50;
+                this.speed = 1.2 + Math.random() * 2.2; 
+                this.rotationSpeed = 0.02 + Math.random() * 0.025; 
                 this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.size = 0.8 + Math.random() * 2.0;
-                this.opacity = 0.1;
+                this.size = 1.0 + Math.random() * 2.5;
+                this.opacity = 0;
             }
 
             update() {
+                // حرکت حلزونی به سمت مرکز
                 this.radius -= this.speed;
                 this.angle += this.rotationSpeed;
 
-                // اوج گرفتن درخشش ذرات در افق رویداد (لبه هسته مرکزی)
-                if (this.radius < 380 && this.radius > 130) {
-                    this.opacity = (380 - this.radius) / 250;
-                } else if (this.radius >= 380) {
-                    this.opacity = 0.08;
+                // فرمول درخشش گرانشی گام‌به‌گام
+                if (this.radius < 450 && this.radius > 140) {
+                    this.opacity = (450 - this.radius) / 250;
+                } else if (this.radius >= 450) {
+                    this.opacity = 0.05;
                 }
 
-                if (this.radius <= 125) {
+                // بازیافت ذرات بلعیده شده در مرکز
+                if (this.radius <= 135) {
                     this.reset();
                 }
             }
 
             draw() {
-                // شبیه‌سازی انحراف دیسک برافزایشی به صورت بیضوی سینمایی (لنز گرانشی)
+                // ذخیره فریم قبلی برای ایجاد کشیدگی و دنباله نوری سینمایی (Motion Blur Trail)
+                const lastX = centerX + Math.cos(this.angle - this.rotationSpeed) * (this.radius + this.speed);
+                const lastY = centerY + Math.sin(this.angle - this.rotationSpeed) * (this.radius + this.speed) * 0.55;
+
                 const x = centerX + Math.cos(this.angle) * this.radius;
-                const y = centerY + Math.sin(this.angle) * this.radius * 0.58; 
+                const y = centerY + Math.sin(this.angle) * this.radius * 0.55; 
 
                 ctx.beginPath();
-                ctx.arc(x, y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.opacity;
-                ctx.fill();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.lineWidth = this.size;
+                ctx.strokeStyle = this.color;
+                ctx.globalAlpha = this.opacity * 0.8;
+                ctx.stroke();
             }
         }
 
@@ -143,30 +151,33 @@
         }
 
         const animate = () => {
+            // ایجاد عمق فضایی تاریک و دنباله‌دار
             ctx.globalAlpha = 1.0;
-            ctx.fillStyle = 'rgba(1, 1, 3, 0.16)'; // دنباله فوتونی نرم حرکتی
+            ctx.fillStyle = 'rgba(2, 2, 5, 0.12)'; 
             ctx.fillRect(0, 0, width, height);
 
-            // ۱. رندر هاله درخشان گداخته پس‌زمینه (نور گازهای چرخنده)
-            const glow = ctx.createRadialGradient(centerX, centerY, 110, centerX, centerY, 320);
-            glow.addColorStop(0, 'rgba(255, 69, 0, 0.28)');
-            glow.addColorStop(0.3, 'rgba(255, 140, 0, 0.08)');
-            glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            ctx.fillStyle = glow;
+            // ایجاد هاله‌های گداخته و نورهای حجیم گوسی در افق رویداد سیاه‌چاله
+            const mainGlow = ctx.createRadialGradient(centerX, centerY, 120, centerX, centerY, 380);
+            mainGlow.addColorStop(0, 'rgba(255, 51, 0, 0.35)');
+            mainGlow.addColorStop(0.2, 'rgba(255, 102, 0, 0.12)');
+            mainGlow.addColorStop(0.5, 'rgba(255, 170, 0, 0.03)');
+            mainGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = mainGlow;
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 320, 0, Math.PI * 2);
+            ctx.arc(centerX, centerY, 380, 0, Math.PI * 2);
             ctx.fill();
 
-            // ۲. پردازش و رسم حلقه فوتون‌ها
+            // رسم خطوط نوری گازهای کیهانی
             particles.forEach(p => {
                 p.update();
                 p.draw();
             });
 
-            // ۳. تاریکی مطلق مرکز سیاه‌چاله (Schwarzschild Shadow Void)
+            // هسته مرکزی مشکی مطلق (سایه انشتین)
             ctx.globalAlpha = 1.0;
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 125, 0, Math.PI * 2);
+            ctx.arc(centerX, centerY, 135, 0, Math.PI * 2);
             ctx.fillStyle = '#000000';
             ctx.fill();
 
@@ -180,10 +191,10 @@
             centerY = height / 2;
         });
 
-        // تعامل ارگانیک و لرزش گرانشی با حرکت موس یا لمس صفحه
+        // جاذبه داینامیک و تغییر افق دید با موس
         window.addEventListener('mousemove', (e) => {
-            centerX = (width / 2) + (e.clientX - width / 2) * 0.035;
-            centerY = (height / 2) + (e.clientY - height / 2) * 0.035;
+            centerX = (width / 2) + (e.clientX - width / 2) * 0.04;
+            centerY = (height / 2) + (e.clientY - height / 2) * 0.04;
             
             const core = document.querySelector('.singularity-core');
             if(core) {
@@ -194,3 +205,5 @@
 
         animate();
     </script>
+</body>
+</html>
