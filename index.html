@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     @phrazel</title>
+    <title>NASA Singularity | @phrazel</title>
     <style>
         body, html {
             margin: 0;
@@ -16,7 +16,6 @@
             user-select: none;
         }
 
-        /* بوم رندرینگ ۳بعدی */
         #canvas3d {
             position: absolute;
             top: 0;
@@ -24,25 +23,16 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            
-            /* وضعیت اولیه: مخفی و نقطه ریز در مرکز */
-            opacity: 0;
-            transform: scale(0.01);
-            filter: blur(20px);
-            
-            /* انیمیشن ورود ناگهانی کل فضا بعد از ۲ ثانیه */
-            animation: bigBangIntro 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            animation-delay: 2s;
         }
 
-        /* لایه بندی متون ناسا */
+        /* لایه‌بندی متون ناسا */
         #titulo, #datos {
             position: absolute;
             color: #fff;
             z-index: 10;
             opacity: 0;
-            animation: fadeInText 1.5s ease forwards;
-            animation-delay: 3.5s; /* لود شدن متن‌ها بعد از استقرار سیاه‌چاله */
+            animation: fadeInText 1s ease forwards;
+            animation-delay: 3.5s;
         }
         #titulo {
             top: 30px;
@@ -84,19 +74,16 @@
             text-align: center;
             padding: 30px 40px;
             border-radius: 16px;
-            background: rgba(5, 5, 10, 0.35);
+            background: rgba(5, 5, 10, 0.4);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 140, 0, 0.2);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,140,0,0.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             
-            /* وضعیت اولیه: کاملاً مخفی و صفر در نقطه وسط */
+            /* وضعیت اولیه برای پدیدار شدن نرم همزمان با زوم دوربین */
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.01);
-            filter: blur(15px);
-            
-            /* انیمیشن زوم از مرکز همزمان با باز شدن فضا */
-            animation: bigBangCore 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+            transform: translate(-50%, -50%) scale(0.5);
+            animation: fadeInCore 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
             animation-delay: 2.2s;
         }
 
@@ -118,7 +105,6 @@
             font-size: 0.9rem;
             border-radius: 25px;
             letter-spacing: 1px;
-            box-shadow: 0 5px 20px rgba(255, 69, 0, 0.4);
             transition: all 0.3s ease;
             border: none;
         }
@@ -128,35 +114,8 @@
             cursor: pointer;
         }
 
-        /* 🎬 انیمیشن‌های بیگ‌بنگ و انفجار خطی از نقطه وسط */
-        @keyframes bigBangIntro {
-            0% {
-                opacity: 0;
-                transform: scale(0.01);
-                filter: blur(20px);
-            }
-            30% {
-                opacity: 0.8;
-                filter: blur(5px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-                filter: blur(0);
-            }
-        }
-
-        @keyframes bigBangCore {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.01);
-                filter: blur(15px);
-            }
-            100% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-                filter: blur(0);
-            }
+        @keyframes fadeInCore {
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
         @keyframes fadeInText {
@@ -188,15 +147,16 @@
         const scene = new THREE.Scene();
         
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 3, 7);
+        
+        // تنظیم موقعیت اولیه دوربین در فاصله‌ی بسیار دور (سیاه مطلق بودن اولیه)
+        camera.position.set(0, 0, 150); 
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
-        // ساخت دیسک گدازه گازها با ۱۸ هزار ذره سه بعدی
+        // ساخت ۱۸ هزار ذره گاز داغ بیضوی
         const particleCount = 18000;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
@@ -227,40 +187,6 @@
             else if (radius > 3.0) clr = colorPalette[1];
             else if (Math.random() > 0.6) clr = colorPalette[2];
 
-            if (x < 0) { 
-                clr = clr.clone().multiplyScalar(0.4);
-            }
+            if (x < 0) clr = clr.clone().multiplyScalar(0.4);
 
             colors[i * 3] = clr.r;
-            colors[i * 3 + 1] = clr.g;
-            colors[i * 3 + 2] = clr.b;
-        }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        const material = new THREE.PointsMaterial({
-            size: 0.035,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.85,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-        });
-
-        const pointCloud = new THREE.Points(geometry, material);
-        scene.add(pointCloud);
-
-        // هسته مشکی مطلق مرکزی
-        const coreGeo = new THREE.SphereGeometry(1.0, 32, 32);
-        const coreMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-        const blackHoleCore = new THREE.Mesh(coreGeo, coreMat);
-        scene.add(blackHoleCore);
-
-        // هاله گداخته دور افق رویداد
-        const haloGeo = new THREE.RingGeometry(1.0, 1.25, 64);
-        const haloMat = new THREE.MeshBasicMaterial({ 
-            color: 0xff4500, 
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.4
