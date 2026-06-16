@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Singularity | @phrazel</title>
+    <title>NASA Black Hole Space | @phrazel</title>
     <style>
         * {
             margin: 0;
@@ -11,10 +11,21 @@
             box-sizing: border-box;
         }
         body {
-            background: #000000;
+            background: #020204;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             position: relative;
+        }
+        /* خطوط اسکنر نامحسوس برای عمق دادن به تصویر فضایی */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.5) 50%);
+            z-index: 100;
+            background-size: 100% 4px;
+            pointer-events: none;
         }
         canvas {
             display: block;
@@ -23,7 +34,7 @@
             left: 0;
             z-index: 1;
         }
-        /* 🌌 باکس هسته مرکزی سیاه‌چاله */
+        /* 🌌 باکس شیشه‌ای مدرن ناسا معلق در افق رویداد */
         .singularity-core {
             position: absolute;
             top: 50%;
@@ -31,75 +42,59 @@
             z-index: 10;
             text-align: center;
             padding: 40px;
-            border-radius: 50%;
-            width: 280px;
-            height: 280px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid #00ff00;
+            border-radius: 20px;
+            width: 320px;
+            background: rgba(4, 4, 8, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 140, 0, 0.15);
             
-            /* وضعیت اولیه برای انیمیشن ورود ناگهانی ناسا */
+            /* انیمیشن ورود ناگهانی ساینس ناسا */
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.5);
-            
-            /* اجرای انیمیشن ورود */
-            animation: nasaIntro 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            animation-delay: 0.3s;
+            transform: translate(-50%, -50%) scale(0.8);
+            animation: nasaSpaceIntro 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation-delay: 0.2s;
         }
         h1 {
-            font-size: 2.4rem;
-            color: #00ff00;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px #00ff00;
-            font-weight: bold;
+            font-size: 2.2rem;
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
         .btn {
             display: inline-block;
             text-decoration: none;
-            color: #00ff00;
-            background: #000000;
-            border: 1px solid #00ff00;
-            padding: 12px 30px;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ff4500, #ff8c00);
+            padding: 14px 35px;
             font-weight: bold;
-            font-size: 0.9rem;
-            border-radius: 25px;
+            font-size: 0.95rem;
+            border-radius: 30px;
             letter-spacing: 1px;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
             transition: all 0.3s ease;
+            border: none;
         }
         .btn:hover {
-            background: #00ff00;
-            color: #000000;
-            box-shadow: 0 0 25px #00ff00;
-            transform: scale(1.05);
+            box-shadow: 0 0 35px #ff8c00, 0 0 10px #ff4500;
+            transform: translateY(-2px);
             cursor: pointer;
         }
 
-        /* 🎬 انیمیشن ورود ناگهانی و انفجاری ناسا */
-        @keyframes nasaIntro {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5);
-                box-shadow: 0 0 0px rgba(0, 255, 0, 0);
-            }
-            70% {
-                box-shadow: 0 0 40px #00ff00; /* شلیک نور سبز */
-            }
-            100% {
+        /* 🎬 انیمیشن ورود سینمایی */
+        @keyframes nasaSpaceIntro {
+            to {
                 opacity: 1;
                 transform: translate(-50%, -50%) scale(1);
-                box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
             }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="blackholeCanvas"></canvas>
+    <canvas id="nasaCanvas"></canvas>
 
     <div class="singularity-core">
         <h1>@phrazel</h1>
@@ -107,7 +102,7 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('blackholeCanvas');
+        const canvas = document.getElementById('nasaCanvas');
         const ctx = canvas.getContext('2d');
 
         let width = canvas.width = window.innerWidth;
@@ -116,9 +111,10 @@
         let centerX = width / 2;
         let centerY = height / 2;
 
-        const particleCount = 350; // بهینه‌سازی تعداد برای سرعت بیشتر
+        const particleCount = 500; 
         const particles = [];
-        const chars = ['0', '1', 'Ø', 'X', 'F', 'A', '7', '9', '•'];
+        // استفاده از گدازه‌های نوری به جای کاراکترهای سنگین ماتریکس
+        const colors = ['#ff4500', '#ff8c00', '#ffd700', '#ff6347', '#ffffff'];
 
         class Particle {
             constructor() {
@@ -129,18 +125,100 @@
 
             reset() {
                 this.angle = Math.random() * Math.PI * 2;
-                this.radius = Math.max(width, height) / 2 + Math.random() * 50;
-                this.speed = 0.8 + Math.random() * 1.5; 
-                this.rotationSpeed = 0.015 + Math.random() * 0.02; 
-                this.char = chars[Math.floor(Math.random() * chars.length)];
-                this.colorOpacity = 0.1;
-                this.fontSize = 11 + Math.random() * 6;
+                this.radius = Math.max(width, height) / 1.5 + Math.random() * 100;
+                // سرعت مکش گرانشی به داخل مرکز
+                this.speed = 1.2 + Math.random() * 2.5; 
+                // چرخش چرخشی شدید دیسک گازها
+                this.rotationSpeed = 0.02 + Math.random() * 0.03; 
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.size = 1 + Math.random() * 2.5;
+                this.opacity = 0.1;
             }
 
             update() {
                 this.radius -= this.speed;
                 this.angle += this.rotationSpeed;
 
-                if (this.radius < 300 && this.radius > 140) {
-                    this.colorOpacity = (300 - this.radius) / 160;
-                } else if (this
+                // درخشش شدید ذرات گاز درست قبل از فروپاشی و بلعیده شدن در افق رویداد (شعاع ۲۰۰)
+                if (this.radius < 400 && this.radius > 180) {
+                    this.opacity = (400 - this.radius) / 220;
+                } else if (this.radius >= 400) {
+                    this.opacity = 0.1;
+                }
+
+                if (this.radius <= 175) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                // شبیه‌ساز خمیدگی فضا-زمان (جاذبه اینشتین) به صورت بیضوی در مرکز
+                const x = centerX + Math.cos(this.angle) * this.radius;
+                const y = centerY + Math.sin(this.angle) * this.radius * 0.85; // انحراف زاویه دیسک ناسا
+
+                ctx.beginPath();
+                ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        const animate = () => {
+            // ایجاد دنباله کشیده فوتون‌ها با لایه تیره عمیق
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = 'rgba(2, 2, 4, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            // ۱. هاله نوری بزرگ و گداخته پس‌زمینه (نارنجی ناسا)
+            const glowGrad = ctx.createRadialGradient(centerX, centerY, 175, centerX, centerY, 350);
+            glowGrad.addColorStop(0, 'rgba(255, 69, 0, 0.3)');
+            glowGrad.addColorStop(0.3, 'rgba(255, 140, 0, 0.08)');
+            glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 350, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ۲. مرکز مطلق و افق رویداد سیاه‌چاله (Shadow Core)
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 175, 0, Math.PI * 2);
+            ctx.fillStyle = '#000000';
+            ctx.fill();
+
+            // رسم و آپدیت حلقه ذرات گداخته
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        };
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        });
+
+        // تعامل نرم با حرکت موس برای حس سه‌بعدی فضا
+        window.addEventListener('mousemove', (e) => {
+            centerX = (width / 2) + (e.clientX - width / 2) * 0.03;
+            centerY = (height / 2) + (e.clientY - height / 2) * 0.03;
+            
+            const core = document.querySelector('.singularity-core');
+            if(core) {
+                core.style.left = `${centerX}px`;
+                core.style.top = `${centerY}px`;
+            }
+        });
+
+        animate();
+    </script>
+</body>
+</html>
