@@ -1,98 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NASA Singularity | @phrazel</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            user-select: none;
-        }
-        #canvas3d {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-        }
-        #titulo {
-            position: absolute;
-            top: 30px; left: 30px;
-            color: #fff; z-index: 10;
-            letter-spacing: 4px; font-weight: 800; font-size: 1.8rem;
-            text-transform: uppercase;
-        }
-        #titulo small {
-            display: block; font-size: 0.7rem; letter-spacing: 2px;
-            color: #ff8c00; margin-top: 5px; font-weight: 400;
-        }
-        #datos {
-            position: absolute; bottom: 30px; left: 30px;
-            color: #aaa; z-index: 10; font-size: 0.8rem; line-height: 1.6;
-            font-family: monospace; background: rgba(0,0,0,0.4);
-            padding: 15px; border-radius: 8px;
-            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);
-        }
-        #datos b { color: #ff4500; }
-        .singularity-core {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 15; text-align: center;
-            padding: 30px 40px; border-radius: 16px;
-            background: rgba(5, 5, 10, 0.4);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 140, 0, 0.2);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
-        .singularity-core h2 {
-            color: #fff; font-size: 1.8rem; margin-bottom: 20px;
-            letter-spacing: 2px; font-weight: 700;
-        }
-        .btn {
-            display: inline-block; text-decoration: none; color: #fff;
-            background: linear-gradient(135deg, #ff4500, #ff8c00);
-            padding: 12px 35px; font-weight: bold; font-size: 0.9rem;
-            border-radius: 25px; letter-spacing: 1px; transition: all 0.3s ease;
-            border: none;
-        }
-        .btn:hover { box-shadow: 0 0 30px #ff8c00; transform: scale(1.05); cursor: pointer; }
-        #fallback-msg {
-            display: none; position: absolute; top: 20px; right: 20px;
-            background: rgba(255,69,0,0.9); color: white; padding: 15px;
-            z-index: 100; border-radius: 8px; font-size: 0.9rem; max-width: 300px;
-        }
-    </style>
-</head>
-<body>
+<div id="titulo">Black hole<small>lente gravitacional · disco volumétrico · bloom HDR</small></div>
 
-    <div id="fallback-msg">سیستم سه بعدی لود نشد. احتمالاً لایبرری بلاک شده یا مرورگر قدیمی است.</div>
+<div id="datos">
+	radio de Schwarzschild <b>r&#8347; = 1.0</b><br>
+	esfera de fotones <b>r = 1.5 r&#8347;</b><br>
+	borde interno del disco <b>r &#8776; 3 r&#8347;</b>
+</div>
 
-    <div id="titulo">Black Hole<small>gravitational lensing · accretion disk · HDR bloom</small></div>
+<div id="panel">
+	<div class="fila">
+		<label>Texto en el espacio</label>
+		<input id="iTexto" type="text" value="BLACK HOLE" maxlength="26"
+					 autocomplete="off" spellcheck="false" placeholder="vacío = sin texto">
+	</div>
+	<div class="fila">
+		<label>Exposición <b id="vBrillo">1.0</b></label>
+		<input id="sBrillo" type="range" min="0.2" max="2.5" step="0.05" value="1">
+	</div>
+	<div class="fila">
+		<label>Resplandor <b id="vBloom">0.9</b></label>
+		<input id="sBloom" type="range" min="0" max="2" step="0.05" value="0.9">
+	</div>
+	<div class="fila">
+		<label>Velocidad orbital <b id="vVel">1.0</b></label>
+		<input id="sVel" type="range" min="0" max="3" step="0.05" value="1">
+	</div>
+	<div class="fila">
+		<label>Temperatura <b id="vTemp">0.45</b></label>
+		<input id="sTemp" type="range" min="0" max="1" step="0.01" value="0.45">
+	</div>
+	<div class="fila toggles">
+		<button id="bDoppler" class="on">Doppler</button>
+		<button id="bFondo" class="on">Nebulosa</button>
+		<button id="bAuto" class="on">Órbita</button>
+	</div>
+	<div class="etiqueta">Calidad</div>
+	<div class="fila toggles">
+		<button id="qBaja">Baja</button>
+		<button id="qMedia" class="on">Media</button>
+		<button id="qAlta">Alta</button>
+	</div>
+</div>
 
-    <div id="datos">
-        schwarzschild radius <b>rₛ = 1.0</b><br>
-        photon sphere <b>r = 1.5 rₛ</b><br>
-        inner disk edge <b>r ≈ 3 rₛ</b>
-    </div>
+<div id="ayuda">
+	arrastra · orbitar<br>
+	rueda / pellizco · acercar<br>
+	doble clic · reiniciar
+</div>
 
-    <div class="singularity-core">
-        <h2>@phrazel</h2>
-        <a href="https://t.me/phrazel" target="_blank" class="btn">ENTER VOID</a>
-    </div>
+<div id="error"><h2>Diagnóstico</h2><div id="errorTexto"></div></div>
 
-    <canvas id="canvas3d"></canvas>
+<script>
+	function mostrarError(msg){
+		var caja = document.getElementById('error');
+		var txt  = document.getElementById('errorTexto');
+		caja.style.display = 'block';
+		txt.textContent += msg + '\n\n';
+	}
+	window.onerror = function(msg, src, linea){
+		mostrarError('Error JS: ' + msg + ' (línea ' + linea + ')');
+	};
+</script>
 
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js" onerror="document.getElementById('fallback-msg').style.display='block'"></script>
-
-    <script>
-        // اطمینان از لود شدن کتابخانه سه بعدی قبل از رندر
-        if (typeof THREE !== 'undefined') {
-            const canvas = document.getElementById('canvas3d');
-            const scene = new THREE.Scene();
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+				onerror="mostrarError('No se pudo cargar Three.js desde el CDN. Revisa tu conexión o si algo bloquea cdnjs.cloudflare.com.')"></script>
