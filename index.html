@@ -25,18 +25,13 @@
             z-index: 1;
         }
 
-        /* لایه‌بندی متون ناسا */
-        #titulo, #datos {
-            position: absolute;
-            color: #fff;
-            z-index: 10;
-            opacity: 0;
-            animation: fadeInText 1s ease forwards;
-            animation-delay: 3.5s;
-        }
+        /* لایه‌بندی آنی متون ناسا */
         #titulo {
+            position: absolute;
             top: 30px;
             left: 30px;
+            color: #fff;
+            z-index: 10;
             letter-spacing: 4px;
             font-weight: 800;
             font-size: 1.8rem;
@@ -51,9 +46,11 @@
             font-weight: 400;
         }
         #datos {
+            position: absolute;
             bottom: 30px;
             left: 30px;
             color: #aaa;
+            z-index: 10;
             font-size: 0.8rem;
             line-height: 1.6;
             font-family: monospace;
@@ -65,11 +62,12 @@
         }
         #datos b { color: #ff4500; }
 
-        /* باکس شیشه‌ای مرکزی اختصاصی شما */
+        /* باکس شیشه‌ای مرکزی اختصاصی شما - لود آنی */
         .singularity-core {
             position: absolute;
             top: 50%;
             left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 15;
             text-align: center;
             padding: 30px 40px;
@@ -79,12 +77,6 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 140, 0, 0.2);
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            
-            /* وضعیت اولیه برای پدیدار شدن نرم همزمان با زوم دوربین */
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.5);
-            animation: fadeInCore 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
-            animation-delay: 2.2s;
         }
 
         .singularity-core h2 {
@@ -113,14 +105,6 @@
             transform: scale(1.05);
             cursor: pointer;
         }
-
-        @keyframes fadeInCore {
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-
-        @keyframes fadeInText {
-            to { opacity: 1; }
-        }
     </style>
 </head>
 <body>
@@ -148,8 +132,8 @@
         
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        // تنظیم موقعیت اولیه دوربین در فاصله‌ی بسیار دور (سیاه مطلق بودن اولیه)
-        camera.position.set(0, 0, 150); 
+        // استقرار آنی دوربین در موقعیت استاندارد بدون فاصله دور
+        camera.position.set(0, 3, 7); 
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -190,3 +174,62 @@
             if (x < 0) clr = clr.clone().multiplyScalar(0.4);
 
             colors[i * 3] = clr.r;
+            colors[i * 3 + 1] = clr.g;
+            colors[i * 3 + 2] = clr.b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.04,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const pointCloud = new THREE.Points(geometry, material);
+        scene.add(pointCloud);
+
+        // هسته مرکزی مشکی
+        const coreGeo = new THREE.SphereGeometry(1.0, 32, 32);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const blackHoleCore = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(blackHoleCore);
+
+        const clock = new THREE.Clock();
+
+        const animate = () => {
+            const elapsedTime = clock.getElapsedTime();
+
+            // چرخش مداوم ذرات گاز حول محور عمودی
+            pointCloud.rotation.y = elapsedTime * 0.25;
+
+            // چرخش آرام و سینمایی زاویه دوربین در فضا حول مرکز دیسک
+            camera.position.x = Math.sin(elapsedTime * 0.08) * 7;
+            camera.position.z = Math.cos(elapsedTime * 0.08) * 7;
+            
+            camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const mouseX = (e.clientX - window.innerWidth / 2) * 0.0003;
+            const mouseY = (e.clientY - window.innerHeight / 2) * 0.0003;
+            pointCloud.rotation.x = mouseY;
+            pointCloud.rotation.z = mouseX;
+        });
+
+        animate();
+    </script>
+</body>
+</html>
