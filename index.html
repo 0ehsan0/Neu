@@ -23,11 +23,10 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            height: 100% !important;
             z-index: 1;
         }
-        /* پنجره مدرن شیشه‌ای مرکزی */
         .singularity-core {
             position: absolute;
             top: 50%; left: 50%;
@@ -36,7 +35,7 @@
             text-align: center;
             padding: 35px 50px; 
             border-radius: 24px;
-            background: rgba(3, 3, 6, 0.45);
+            background: rgba(3, 3, 6, 0.55);
             backdrop-filter: blur(25px); 
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 110, 0, 0.25);
@@ -48,7 +47,6 @@
             margin-bottom: 25px;
             letter-spacing: 3px; 
             font-weight: 800;
-            text-shadow: 0 2px 15px rgba(0,0,0,0.6);
         }
         .btn {
             display: inline-block; 
@@ -62,11 +60,10 @@
             letter-spacing: 1px; 
             transition: all 0.3s ease;
             border: none;
-            box-shadow: 0 6px 20px rgba(255, 55, 0, 0.35);
         }
         .btn:hover { 
             box-shadow: 0 0 40px #ff7700, 0 0 15px #ff3700; 
-            transform: scale(1.06) translateY(-1px); 
+            transform: scale(1.06); 
             cursor: pointer; 
         }
     </style>
@@ -81,98 +78,127 @@
     <canvas id="spaceCanvas"></canvas>
 
     <script>
-        const canvas = document.getElementById('spaceCanvas');
-        const ctx = canvas.getContext('2d');
+        // 🛠️ اجرای امن کل اسکریپت انیمیشن فقط و فقط پس از لود کامل پنجره مرورگر
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('spaceCanvas');
+            const ctx = canvas.getContext('2d');
 
-        let width, height, centerX, centerY, dpr;
+            let width, height, centerX, centerY, dpr;
 
-        // 🛠️ تابع کالیبره کردن رزولوشن روی حالت فوق‌العاده باکیفیت Ultra-HD / 4K
-        function resizeAndScale() {
-            dpr = Math.min(window.devicePixelRatio || 1, 3); // دریافت تراکم پیکسلی صفحه (محدود به غلظت ۳ برای بهینه‌سازی فریم)
-            width = window.innerWidth;
-            height = window.innerHeight;
-            
-            // بزرگتر کردن ابعاد بافت اصلی کانواس به نسبت هوشمند تراکم پیکسلی صفحه
-            canvas.width = width * dpr;
-            canvas.height = height * dpr;
-            
-            // فیکس کردن در ابعاد مانیتور از طریق سی‌اس‌اس برای اعمال سوپرسمپلینگ کریستالی
-            canvas.style.width = width + 'px';
-            canvas.style.styleHeight = height + 'px';
-            
-            // همگام‌سازی مختصات مرکزی با مقیاس جدید دپ‌آر
-            centerX = (width / 2) * dpr;
-            centerY = (height / 2) * dpr;
-        }
-
-        resizeAndScale();
-
-        const particleCount = 800; // افزایش تعداد ذرات برای تراکم کیفیت تصویر 4K
-        const particles = [];
-        const colors = ['#ff3300', '#ff6600', '#ffaa00', '#ffd27f', '#ffffff'];
-
-        class Particle {
-            constructor() {
-                this.reset();
-                this.radius = Math.random() * (Math.max(canvas.width, canvas.height) / 1.3);
-                this.angle = Math.random() * Math.PI * 2;
+            function resizeAndScale() {
+                dpr = Math.min(window.devicePixelRatio || 1, 2); 
+                width = window.innerWidth || document.documentElement.clientWidth;
+                height = window.innerHeight || document.documentElement.clientHeight;
+                
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                
+                centerX = (width / 2) * dpr;
+                centerY = (height / 2) * dpr;
             }
 
-            reset() {
-                this.angle = Math.random() * Math.PI * 2;
-                this.radius = Math.max(canvas.width, canvas.height) / 1.3 + Math.random() * (50 * dpr);
-                this.speed = (1.4 + Math.random() * 2.2) * dpr; // مقیاس‌دهی سرعت بر اساس پیکسل‌های فشرده
-                this.rotationSpeed = 0.018 + Math.random() * 0.022; 
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.size = (0.8 + Math.random() * 2.2) * dpr; // سایز میکروسکوپی و متراکم پیکسل‌ها
-                this.opacity = 0;
-            }
+            resizeAndScale();
 
-            update() {
-                this.radius -= this.speed;
-                this.angle += this.rotationSpeed;
+            const particleCount = 600; 
+            const particles = [];
+            const colors = ['#ff3300', '#ff6600', '#ffaa00', '#ffd27f', '#ffffff'];
 
-                const coreRadius = 135 * dpr;
-                const horizonFade = 450 * dpr;
-
-                if (this.radius < horizonFade && this.radius > coreRadius) {
-                    this.opacity = (horizonFade - this.radius) / (horizonFade - coreRadius);
-                } else if (this.radius >= horizonFade) {
-                    this.opacity = 0.04;
-                }
-
-                if (this.radius <= coreRadius) {
+            class Particle {
+                constructor() {
                     this.reset();
+                    this.radius = Math.random() * (Math.max(canvas.width, canvas.height) / 1.3);
+                    this.angle = Math.random() * Math.PI * 2;
+                }
+
+                reset() {
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.radius = Math.max(canvas.width, canvas.height) / 1.3 + Math.random() * (50 * dpr);
+                    this.speed = (1.4 + Math.random() * 2.2) * dpr; 
+                    this.rotationSpeed = 0.018 + Math.random() * 0.022; 
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                    this.size = (0.8 + Math.random() * 2.0) * dpr; 
+                    this.opacity = 0;
+                }
+
+                update() {
+                    this.radius -= this.speed;
+                    this.angle += this.rotationSpeed;
+
+                    const coreRadius = 130 * dpr;
+                    const horizonFade = 400 * dpr;
+
+                    if (this.radius < horizonFade && this.radius > coreRadius) {
+                        this.opacity = (horizonFade - this.radius) / (horizonFade - coreRadius);
+                    } else if (this.radius >= horizonFade) {
+                        this.opacity = 0.04;
+                    }
+
+                    if (this.radius <= coreRadius) {
+                        this.reset();
+                    }
+                }
+
+                draw() {
+                    const lastX = centerX + Math.cos(this.angle - this.rotationSpeed) * (this.radius + this.speed);
+                    const lastY = centerY + Math.sin(this.angle - this.rotationSpeed) * (this.radius + this.speed) * 0.55;
+
+                    const x = centerX + Math.cos(this.angle) * this.radius;
+                    const y = centerY + Math.sin(this.angle) * this.radius * 0.55; 
+
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.lineWidth = this.size;
+                    ctx.strokeStyle = this.color;
+                    ctx.globalAlpha = this.opacity * 0.85;
+                    ctx.stroke();
                 }
             }
 
-            draw() {
-                const lastX = centerX + Math.cos(this.angle - this.rotationSpeed) * (this.radius + this.speed);
-                const lastY = centerY + Math.sin(this.angle - this.rotationSpeed) * (this.radius + this.speed) * 0.55;
-
-                const x = centerX + Math.cos(this.angle) * this.radius;
-                const y = centerY + Math.sin(this.angle) * this.radius * 0.55; 
-
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(x, y);
-                ctx.lineWidth = this.size;
-                ctx.strokeStyle = this.color;
-                ctx.globalAlpha = this.opacity * 0.85;
-                ctx.stroke();
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
             }
-        }
 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
+            const animate = () => {
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = 'rgba(1, 1, 3, 0.15)'; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const animate = () => {
-            ctx.globalAlpha = 1.0;
-            ctx.fillStyle = 'rgba(2, 2, 5, 0.14)'; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const coreRadius = 130 * dpr;
+                const glowRadius = 380 * dpr;
 
-            const coreRadius = 135 * dpr;
-            const glowRadius = 400 * dpr;
+                const mainGlow = ctx.createRadialGradient(centerX, centerY, coreRadius, centerX, centerY, glowRadius);
+                mainGlow.addColorStop(0, 'rgba(255, 51, 0, 0.35)');
+                mainGlow.addColorStop(0.2, 'rgba(255, 102, 0, 0.12)');
+                mainGlow.addColorStop(0.5, 'rgba(255, 170, 0, 0.02)');
+                mainGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                
+                ctx.fillStyle = mainGlow;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
+                ctx.fill();
 
-            // رندر امضای بصری بلوم گوسی با تفکیک پیکسلی بالا مخصوص صفحات نمایش
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                ctx.globalAlpha = 1.0;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2);
+                ctx.fillStyle = '#010103';
+                ctx.fill();
+
+                requestAnimationFrame(animate);
+            };
+
+            window.addEventListener('resize', () => {
+                resizeAndScale();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                const rawX = window.innerWidth / 2 + (e.clientX - window.innerWidth / 2) * 0.04;
+                const rawY = window.innerHeight / 2 + (e.clientY - window.innerHeight / 2) * 0.04;
+                centerX = rawX * dpr;
+                centerY = rawY * dpr;
+                const core = document.querySelector('.singularity-core');
