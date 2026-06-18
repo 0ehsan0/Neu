@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEUXP | Network Toolkit</title>
+    <title>NEUXP | Custom Ping Toolkit</title>
     <style>
         * {
             margin: 0;
@@ -26,51 +26,53 @@
             height: 100% !important;
             z-index: 1;
         }
-        /* باکس شیشه‌ای مرکزی کنترل شبکه */
+        /* پنل مرکزی کنترل پینگ دستی */
         .network-panel {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             z-index: 15; 
-            text-align: center;
-            padding: 40px; 
+            padding: 35px; 
             border-radius: 24px;
-            background: rgba(3, 3, 5, 0.6);
+            background: rgba(3, 3, 5, 0.65);
             backdrop-filter: blur(25px); 
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 90, 0, 0.25);
             box-shadow: 0 30px 70px rgba(0,0,0,0.95);
-            width: 360px;
+            width: 400px;
         }
         
         .network-panel h2 {
             color: #fff;
-            font-size: 1.8rem;
-            margin-bottom: 25px;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
             letter-spacing: 2px;
             font-weight: 800;
+            text-align: center;
         }
 
-        .info-box {
-            background: rgba(255, 69, 0, 0.05);
-            border: 1px solid rgba(255, 69, 0, 0.15);
-            border-radius: 12px;
-            padding: 15px;
+        /* کادر ورودی آدرس */
+        .input-group {
             margin-bottom: 15px;
-            color: #aaa;
-            font-family: monospace;
-            font-size: 0.95rem;
-            text-align: left;
+            position: relative;
         }
-
-        .info-box b {
-            color: #ff8c00;
-        }
-
-        .info-box span {
-            float: right;
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            background: rgba(0, 0, 0, 0.6);
             color: #fff;
-            font-weight: bold;
+            font-family: monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            border-color: #ff8c00;
+            box-shadow: 0 0 15px rgba(2ff, 140, 0, 0.2);
         }
 
         .btn {
@@ -88,12 +90,37 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 55, 0, 0.2);
+            margin-bottom: 15px;
         }
 
         .btn:hover { 
             box-shadow: 0 0 30px rgba(255, 119, 0, 0.6); 
-            transform: scale(1.02); 
+            transform: scale(1.01); 
         }
+
+        /* بخش خروجی شبیه به ترمینال CMD */
+        .cmd-terminal {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            height: 160px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #00ff00;
+            text-align: left;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        .cmd-terminal p {
+            margin-bottom: 6px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        
+        .cmd-terminal .err { color: #ff3300; }
+        .cmd-terminal .info { color: #ffaa00; }
     </style>
 </head>
 <body>
@@ -101,56 +128,65 @@
     <div class="network-panel">
         <h2>@phrazel</h2>
         
-        <div class="info-box">
-            📄 Your IP: <span id="user-ip">Loading...</span>
+        <div class="input-group">
+            <input type="text" id="target-target" placeholder="e.g., 1.1.1.1 or google.com" value="1.1.1.1" autocomplete="off" spellcheck="false">
         </div>
         
-        <div class="info-box">
-            ⚡ Cloudflare Ping: <span id="ping-cf">- ms</span>
-        </div>
+        <button class="btn" onclick="startCustomPing()">PING TARGET</button>
 
-        <div class="info-box">
-            🌍 Google Ping: <span id="ping-google">- ms</span>
+        <div class="cmd-terminal" id="terminal-out">
+            <p class="info">System ready. Enter IP/Domain and press Ping...</p>
         </div>
-
-        <button class="btn" onclick="checkNetwork()">REFRESH NETWORK</button>
     </div>
 
     <canvas id="spaceCanvas"></canvas>
 
     <script>
-        // 🌐 بخش اول: جاوااسکریپت ابزار شبکه (IP & Ping)
-        async function getIP() {
-            document.getElementById('user-ip').innerText = "Fetching...";
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                document.getElementById('user-ip').innerText = data.ip;
-            } catch (error) {
-                document.getElementById('user-ip').innerText = "Error / Blocked";
-            }
+        // 🌐 منطق ابزار پینگ دستی شبیه به CMD
+        function logToTerminal(text, className = '') {
+            const term = document.getElementById('terminal-out');
+            const p = document.createElement('p');
+            if(className) p.className = className;
+            p.innerText = text;
+            term.appendChild(p);
+            term.scrollTop = term.scrollHeight; // اسکرول خودکار به آخرین خط
         }
 
-        function measurePing(url, elementId) {
-            const startTime = Date.now();
-            document.getElementById(elementId).innerText = "...";
+        async function startCustomPing() {
+            let target = document.getElementById('target-target').value.trim();
+            const term = document.getElementById('terminal-out');
             
-            // استفاده از ترفند لود عکس برای دور زدن محدودیت CORS در پینگ مرورگر
-            const img = new Image();
-            img.onload = function() {
-                const ping = Date.now() - startTime;
-                document.getElementById(elementId).innerText = ping + " ms";
-            };
-            img.onerror = function() {
-                // در هر دو حالت لود یا ارور، زمان پاسخ‌دهی همان پینگ شبکه است
-                const ping = Date.now() - startTime;
-                document.getElementById(elementId).innerText = ping + " ms";
-            };
-            // افزودن پارامتر رندوم برای جلوگیری از خواندن از کش مرورگر
-            img.src = url + "?cache=" + Math.random();
-        }
+            if (!target) {
+                logToTerminal("Error: Target cannot be empty.", "err");
+                return;
+            }
 
-        function checkNetwork() {
-            getIP();
-            measurePing('https://1.1.1.1/favicon.ico', 'ping-cf');
-            measurePing
+            // تمیز کردن پروتکل‌ها اگر کاربر اشتباهی وارد کرده باشد
+            target = target.replace(/^(https?:\/\/)/, "");
+
+            term.innerHTML = ""; // پاک کردن خروجی قبلی
+            logToTerminal(`Pinging ${target} with 32 bytes of data:`, "info");
+
+            // ارسال ۴ پکت متوالی برای شبیه‌سازی دقیق مکانیزم CMD
+            for (let i = 1; i <= 4; i++) {
+                await new Promise(resolve => {
+                    setTimeout(async () => {
+                        const startTime = Date.now();
+                        
+                        // ساخت یک لایه درخواست ترفندآمیز به درگاه تصویر جهت ارزیابی تأخیر سخت‌افزاری شبکه
+                        const img = new Image();
+                        let resolved = false;
+
+                        const handleResponse = () => {
+                            if (!resolved) {
+                                resolved = true;
+                                const duration = Date.now() - startTime;
+                                logToTerminal(`Reply from ${target}: time=${duration}ms bytes=32`);
+                                resolve();
+                            }
+                        };
+
+                        img.onload = handleResponse;
+                        img.onerror = handleResponse; // در بستر وب، خطای عدم دسترسی تصویر نیز گویای بازگشت پکت است
+
+                        // باز کردن آدرس با پار
