@@ -156,7 +156,7 @@ Console ready. Click "Start Clean IP Scan" to deploy workers...</div>
                 output += ipPadding + "4      4      0.00          " + delayPadding + speed + "\n";
             });
 
-            output += "\nComplete test results have been written to result.csv file.\nPress Enter or Ctrl+C to exit.";
+            output += "\nComplete test results have been written to result.csv file.";
             updateTerminal(output);
             
             btn.disabled = false;
@@ -164,7 +164,8 @@ Console ready. Click "Start Clean IP Scan" to deploy workers...</div>
         }
 
         function copyTableResult() {
-            navigator.clipboard.writeText(cleanIPPool.join('\n')).then(() => {
+            const commaSeparatedIPs = cleanIPPool.join(',');
+            navigator.clipboard.writeText(commaSeparatedIPs).then(() => {
                 const copyBtn = document.getElementById('copyBtn');
                 copyBtn.innerText = "COPIED!";
                 setTimeout(() => { copyBtn.innerText = "Copy Result"; }, 1500);
