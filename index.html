@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEUXP | Cloudflare Advanced Diagnostic Console</title>
+    <title>NEUXP | Cloudflare Clean IP Scanner</title>
     <style>
         * {
             margin: 0;
@@ -38,7 +38,7 @@
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 90, 0, 0.22);
             box-shadow: 0 35px 80px rgba(0,0,0,0.95);
-            width: 540px;
+            width: 550px;
         }
         .network-panel h2 {
             color: #fff;
@@ -82,189 +82,11 @@
             border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 14px;
             padding: 18px;
-            height: 320px;
+            height: 330px;
             overflow-y: auto;
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 0.78rem;
             text-align: left;
             background: rgba(3, 3, 5, 0.92);
             color: #00ff66;
-            box-shadow: inset 0 4px 15px rgba(0,0,0,0.6);
-            user-select: text;
-            -webkit-user-select: text;
-            white-space: pre;
-            line-height: 1.5;
-        }
-        .cmd-terminal .info { color: #ffaa00; }
-        .cmd-terminal .white { color: #ffffff; }
-        .cmd-terminal .gray { color: #888888; }
-    </style>
-</head>
-<body>
-
-    <div class="network-panel">
-        <h2>@phrazel</h2>
-        
-        <div class="action-container">
-            <button class="btn" id="scanBtn" onclick="startCloudflareScanner()">Start Advanced Scan</button>
-            <button class="btn copy-btn" id="copyBtn" onclick="copyTableResult()" disabled>Copy IPs</button>
-        </div>
-
-        <div class="cmd-terminal" id="terminal-out">Microsoft Windows [Version 10.0.19045]
-(c) Microsoft Corporation. All rights reserved.
-
-Console ready. Click "Start Advanced Scan" to run diagnosis...</div>
-    </div>
-
-    <canvas id="spaceCanvas"></canvas>
-
-    <script>
-        let discoveredIPs = [];
-
-        function writeRaw(text) {
-            const term = document.getElementById('terminal-out');
-            term.innerHTML += text + "\n";
-            term.scrollTop = term.scrollHeight;
-        }
-
-        async function startCloudflareScanner() {
-            const btn = document.getElementById('scanBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const term = document.getElementById('terminal-out');
-            
-            btn.disabled = true;
-            copyBtn.disabled = true;
-            term.innerHTML = "";
-            discoveredIPs = [];
-
-            // --- ۱. مرحله پینگ رنج‌ها (Latency Test) ---
-            writeRaw("<span class='info'>Start latency test (Mode: TCP, Port: 443, Range: 0 ~ 9999 ms, Packet Loss: 1.00)</span>");
-            
-            // شبیه‌سازی لایو و گام‌به‌گام لود پکت‌ها مطابق خروجی نرم‌افزار
-            for(let p = 1000; p <= 5956; p += Math.floor(Math.random() * 800) + 400) {
-                term.innerHTML = term.innerHTML.substring(0, term.innerHTML.lastIndexOf("Start latency test") + 82);
-                writeRaw(`${p} / 5956 [-----------------------------------------------------------------------------------] Available: ${Math.floor(p/14)}  1m59s`);
-                await new Promise(r => setTimeout(r, 150));
-            }
-            term.innerHTML = term.innerHTML.substring(0, term.innerHTML.lastIndexOf("Start latency test") + 82);
-            writeRaw("5956 / 5956 [-----------------------------------------------------------------------------------] Available: 440  1m59s");
-
-            await new Promise(r => setTimeout(r, 400));
-
-            // --- ۲. مرحله تست دانلود (Download Speed Test) ---
-            writeRaw("<span class='info'>Start download speed test (Minimum speed: 0.00 MB/s, Number: 10, Queue: 10)</span>");
-            for(let d = 1; d <= 10; d++) {
-                term.innerHTML = term.innerHTML.substring(0, term.innerHTML.lastIndexOf("Start download speed test") + 90);
-                writeRaw(`${d} / 10 [--------------------------------------------------------------------------------------------]            1m40s`);
-                await new Promise(r => setTimeout(r, 120));
-            }
-
-            await new Promise(r => setTimeout(r, 300));
-
-            // --- ۳. ایجاد جدول نهایی مطابق ساختار خروجی برنامه شما ---
-            writeRaw("<span class='white'>IP Address      Sent Received Loss-Rate Average-Delay Download-Speed (MB/s)</span>");
-            
-            // لیست رنج‌های آی‌پِی تمیز استخراج شده از خروجی نمونه برنامه شما
-            const sampleIPs = [
-                "104.17.145.232", "104.19.79.174", "104.19.78.11", "104.19.50.71", 
-                "104.19.42.122", "104.19.61.237", "104.19.64.172", "104.19.90.102", 
-                "104.19.66.167", "104.19.96.214"
-            ];
-            discoveredIPs = [...sampleIPs];
-
-            // ایجاد فاصله‌گذاری‌های ساختاریافته ماتریسی (Padding) برای تراز شدن ستون‌ها در فونت مونو
-            sampleIPs.forEach(ip => {
-                let ipPadding = ip.padEnd(16, ' ');
-                let delay = (10 + Math.random() * 25).toFixed(2);
-                let delayPadding = delay.padEnd(14, ' ');
-                let speed = (12 + Math.random() * 28).toFixed(2); // شبیه‌سازی سرعت دانلود زنده متناسب با پینگ خط
-                
-                writeRaw(`${ipPadding}4      4      0.00          ${delayPadding}${speed}`);
-            });
-
-            writeRaw("\n<span class='gray'>Complete test results have been written to result.csv file.\nPress Enter or Ctrl+C to exit.</span>");
-            
-            btn.disabled = false;
-            copyBtn.disabled = false;
-        }
-
-        function copyTableResult() {
-            if (discoveredIPs.length === 0) return;
-            navigator.clipboard.writeText(discoveredIPs.join('\n')).then(() => {
-                const copyBtn = document.getElementById('copyBtn');
-                copyBtn.innerText = "COPIED!";
-                setTimeout(() => { copyBtn.innerText = "Copy IPs"; }, 1500);
-            });
-        }
-
-        // 🌌 موتور انیمیشن پس‌زمینه سیاه‌چاله EHT
-        window.addEventListener('load', () => {
-            const canvas = document.getElementById('spaceCanvas');
-            const ctx = canvas.getContext('2d');
-            let width, height, centerX, centerY, dpr;
-
-            function resizeAndScale() {
-                dpr = Math.min(window.devicePixelRatio || 1, 2); 
-                width = window.innerWidth; height = window.innerHeight;
-                canvas.width = width * dpr; canvas.height = height * dpr;
-                centerX = (width / 2) * dpr; centerY = (height / 2) * dpr;
-            }
-            resizeAndScale();
-
-            const particleCount = 400; const particles = [];
-            const colors = ['#ff2a00', '#ff5100', '#ff7700', '#ff9900', '#ffffff'];
-
-            class Particle {
-                constructor() {
-                    this.reset();
-                    this.radius = Math.random() * (Math.max(canvas.width, canvas.height) / 1.3);
-                    this.angle = Math.random() * Math.PI * 2;
-                }
-                reset() {
-                    this.angle = Math.random() * Math.PI * 2;
-                    this.radius = 135 * dpr + Math.random() * (180 * dpr);
-                    this.speed = (0.3 + Math.random() * 0.7) * dpr; 
-                    this.rotationSpeed = 0.009 + Math.random() * 0.014; 
-                    this.color = colors[Math.floor(Math.random() * colors.length)];
-                    this.size = (3 + Math.random() * 8) * dpr; 
-                    this.opacity = 0;
-                }
-                update() {
-                    this.angle += this.rotationSpeed;
-                    this.radius += Math.sin(this.angle * 2) * 0.12;
-                    const coreRadius = 125 * dpr; const horizonFade = 320 * dpr;
-                    if (this.radius < horizonFade && this.radius > coreRadius) {
-                        this.opacity = (horizonFade - this.radius) / (horizonFade - coreRadius) * 0.28;
-                    } else { this.opacity = 0.02; }
-                }
-                draw() {
-                    const x = centerX + Math.cos(this.angle) * this.radius;
-                    const y = centerY + Math.sin(this.angle) * this.radius * 0.68; 
-                    ctx.beginPath(); ctx.arc(x, y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill();
-                }
-            }
-
-            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-
-            const animate = () => {
-                ctx.globalAlpha = 1.0; ctx.fillStyle = 'rgba(1, 1, 3, 0.08)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                const coreRadius = 120 * dpr; const glowRadius = 340 * dpr;
-                const mainGlow = ctx.createRadialGradient(centerX, centerY, coreRadius, centerX, centerY, glowRadius);
-                mainGlow.addColorStop(0, 'rgba(255, 35, 0, 0.45)');
-                mainGlow.addColorStop(0.25, 'rgba(255, 90, 0, 0.16)');
-                mainGlow.addColorStop(0.6, 'rgba(255, 140, 0, 0.02)');
-                mainGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = mainGlow; ctx.beginPath(); ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2); ctx.fill();
-
-                particles.forEach(p => { p.update(); p.draw(); });
-                ctx.globalAlpha = 1.0; ctx.beginPath(); ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2); ctx.fillStyle = '#010103'; ctx.fill();
-                requestAnimationFrame(animate);
-            };
-
-            window.addEventListener('resize', () => { resizeAndScale(); });
-            animate();
-        });
-    </script>
-</body>
-</html>
+            box-shadow: inset 0 4px 15px rgba(
