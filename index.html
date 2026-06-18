@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEUXP | Core CMD Console</title>
+    <title>NEUXP | Core CMD & Speed Console</title>
     <style>
         * {
             margin: 0;
@@ -38,7 +38,7 @@
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 90, 0, 0.22);
             box-shadow: 0 35px 80px rgba(0,0,0,0.95);
-            width: 440px;
+            width: 450px;
         }
         .network-panel h2 {
             color: #fff;
@@ -66,32 +66,39 @@
             outline: none;
             text-align: center;
         }
-        .input-group input:focus {
-            border-color: #ff7700;
+        .action-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         .btn {
-            display: block; 
-            width: 100%;
+            flex: 1;
             color: #fff;
             background: linear-gradient(135deg, #ff2a00, #ff7700);
             padding: 15px; 
             font-weight: bold; 
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             border-radius: 14px; 
             letter-spacing: 1px; 
             border: none;
             cursor: pointer;
-            margin-bottom: 20px;
             text-transform: uppercase;
         }
+        .btn.speed-btn {
+            background: linear-gradient(135deg, #00ff66, #00aa44);
+            color: #000;
+        }
         .btn:hover { 
-            box-shadow: 0 0 35px rgba(255, 119, 0, 0.55); 
+            box-shadow: 0 0 25px rgba(255, 119, 0, 0.4); 
+        }
+        .btn.speed-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.4);
         }
         .cmd-terminal {
             border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 14px;
             padding: 15px;
-            height: 190px;
+            height: 200px;
             overflow-y: auto;
             font-family: 'Consolas', monospace;
             font-size: 0.85rem;
@@ -101,6 +108,7 @@
             box-shadow: inset 0 4px 15px rgba(0,0,0,0.6);
         }
         .cmd-terminal .info { color: #ffaa00; }
+        .cmd-terminal .speed-text { color: #2dbcff; }
     </style>
 </head>
 <body>
@@ -110,4 +118,6 @@
         <div class="input-group">
             <input type="text" id="target-target" placeholder="Enter IP or Domain" value="172.65.155.197" autocomplete="off" spellcheck="false">
         </div>
-        <button
+        
+        <div class="action-container">
+            <button class="btn" onclick
