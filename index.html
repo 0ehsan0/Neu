@@ -62,9 +62,6 @@
             font-size: 1rem;
             outline: none;
         }
-        .input-group input:focus {
-            border-color: #ff8c00;
-        }
         .btn {
             display: block; 
             width: 100%;
@@ -74,7 +71,6 @@
             font-weight: bold; 
             font-size: 0.95rem;
             border-radius: 12px; 
-            letter-spacing: 1px; 
             border: none;
             cursor: pointer;
             margin-bottom: 20px;
@@ -96,7 +92,6 @@
             background: rgba(255,255,255,0.05);
             color: #aaa;
             cursor: pointer;
-            transition: all 0.2s;
         }
         .tab-btn.active[data-type="cmd"] {
             background: #000; color: #00ff00; border-color: #00ff00;
@@ -110,27 +105,63 @@
             padding: 15px;
             height: 180px;
             overflow-y: auto;
-            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-family: monospace;
             font-size: 0.85rem;
             text-align: left;
-            transition: all 0.3s ease;
         }
-        .cmd-terminal.theme-cmd {
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-        }
-        .cmd-terminal.theme-cmd .err { color: #ff3300; }
-        .cmd-terminal.theme-cmd .info { color: #ffaa00; }
-        .cmd-terminal.theme-ps {
-            background: rgba(1, 36, 86, 0.95);
-            color: #ffffff;
-        }
-        .cmd-terminal.theme-ps .err { color: #ff6b6b; background: #500; padding: 0 4px; }
-        .cmd-terminal.theme-ps .info { color: #ffff00; }
-        .cmd-terminal.theme-ps .prompt { color: #2dbcff; }
+        .cmd-terminal.theme-cmd { background: rgba(0, 0, 0, 0.9); color: #00ff00; }
+        .cmd-terminal.theme-ps { background: rgba(1, 36, 86, 0.95); color: #ffffff; }
+        .cmd-terminal .info { color: #ffaa00; }
     </style>
 </head>
 <body>
 
     <div class="network-panel">
-        <h2>@
+        <h2>@phrazel</h2>
+        <div class="input-group">
+            <input type="text" id="target-target" placeholder="e.g., 172.65.155.197" value="172.65.155.197" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="btn" onclick="startExecutionPing()">TEST CONNECTION</button>
+        <div class="terminal-tabs">
+            <button class="tab-btn active" data-type="cmd" onclick="setTerminalTheme('cmd')">cmd.exe</button>
+            <button class="tab-btn" data-type="ps" onclick="setTerminalTheme('ps')">PowerShell</button>
+        </div>
+        <div class="cmd-terminal theme-cmd" id="terminal-out">
+            <p class="info">Console ready. Select interface and ping...</p>
+        </div>
+    </div>
+
+    <canvas id="spaceCanvas"></canvas>
+
+    <script>
+        let currentTheme = 'cmd';
+
+        function setTerminalTheme(theme) {
+            currentTheme = theme;
+            const term = document.getElementById('terminal-out');
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-type="${theme}"]`).classList.add('active');
+            if (theme === 'cmd') {
+                term.className = 'cmd-terminal theme-cmd';
+                term.innerHTML = '<p class="info">Switched to Command Prompt. System ready.</p>';
+            } else {
+                term.className = 'cmd-terminal theme-ps';
+                term.innerHTML = '<p style="color:#2dbcff">Windows PowerShell<br>Copyright (C) Microsoft Corporation.</p><p class="info">Ready for Test-Connection...</p>';
+            }
+        }
+
+        function logToTerminal(text, className = '') {
+            const term = document.getElementById('terminal-out');
+            const p = document.createElement('p');
+            if(className) p.className = className;
+            if (currentTheme === 'ps' && !className) {
+                p.innerHTML = `<span style="color:#2dbcff">PS C:\\Users\\neuxp></span> ${text}`;
+            } else if (currentTheme === 'cmd' && !className) {
+                p.innerHTML = `<span>C:\\Users\\neuxp></span>${text}`;
+            } else { p.innerText = text; }
+            term.appendChild(p);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        async
