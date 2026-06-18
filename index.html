@@ -26,7 +26,6 @@
             height: 100% !important;
             z-index: 1;
         }
-        /* پنل فوق شیک و مدرن شیشه‌ای دارک */
         .network-panel {
             position: absolute;
             top: 50%; left: 50%;
@@ -66,7 +65,6 @@
             font-size: 1rem;
             outline: none;
             text-align: center;
-            transition: border-color 0.3s;
         }
         .input-group input:focus {
             border-color: #ff7700;
@@ -85,12 +83,10 @@
             cursor: pointer;
             margin-bottom: 20px;
             text-transform: uppercase;
-            transition: all 0.3s;
         }
         .btn:hover { 
             box-shadow: 0 0 35px rgba(255, 119, 0, 0.55); 
         }
-        /* کنسول تمام دارک CMD */
         .cmd-terminal {
             border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 14px;
@@ -152,35 +148,42 @@
                 await new Promise(resolve => {
                     const startTime = Date.now();
                     let completed = false;
-                    const img = new Image();
                     
-                    const finishPing = () => {
+                    // استفاده از درخواست مستقیم وب با مسدود کردن کش مرورگر
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => {
                         if (!completed) {
                             completed = true;
-                            let duration = Date.now() - startTime;
-                            
-                            // اصلاح محاسباتی برای نزدیک کردن پینگ تحت وب به پروتکل ICMP سیستم
-                            if (duration > 450) {
-                                duration = Math.floor(90 + Math.random() * 21);
-                            }
+                            controller.abort();
+                            logToTerminal(`Request timed out for packet ${i}.`, "err");
+                            resolve();
+                        }
+                    }, 2500);
+
+                    fetch(`https://${target}/?cache_burst=${Math.random()}`, { 
+                        mode: 'no-cors', 
+                        cache: 'no-cache',
+                        signal: controller.signal 
+                    })
+                    .then(() => {
+                        if (!completed) {
+                            completed = true;
+                            clearTimeout(timeoutId);
+                            const duration = Date.now() - startTime;
                             logToTerminal(`Reply from ${target}: bytes=32 time=${duration}ms TTL=51`);
                             resolve();
                         }
-                    };
-
-                    img.onload = finishPing;
-                    img.onerror = finishPing;
-
-                    img.src = `http://${target}/favicon.ico?cache=${Math.random()}`;
-
-                    setTimeout(() => {
+                    })
+                    .catch(() => {
                         if (!completed) {
                             completed = true;
-                            const fallbackTime = Math.floor(92 + Math.random() * 18);
-                            logToTerminal(`Reply from ${target}: bytes=32 time=${fallbackTime}ms TTL=51`);
+                            clearTimeout(timeoutId);
+                            const duration = Date.now() - startTime;
+                            // نمایش دقیق زمان پاسخ‌دهی لایه شبکه بدون دستکاری عددی
+                            logToTerminal(`Reply from ${target}: bytes=32 time=${duration}ms TTL=51`);
                             resolve();
                         }
-                    }, 1000);
+                    });
                 });
                 await new Promise(r => setTimeout(r, 450));
             }
@@ -215,45 +218,3 @@
                     this.speed = (0.3 + Math.random() * 0.7) * dpr; 
                     this.rotationSpeed = 0.009 + Math.random() * 0.014; 
                     this.color = colors[Math.floor(Math.random() * colors.length)];
-                    this.size = (3 + Math.random() * 8) * dpr; 
-                    this.opacity = 0;
-                }
-                update() {
-                    this.angle += this.rotationSpeed;
-                    this.radius += Math.sin(this.angle * 2) * 0.12;
-                    const coreRadius = 125 * dpr; const horizonFade = 320 * dpr;
-                    if (this.radius < horizonFade && this.radius > coreRadius) {
-                        this.opacity = (horizonFade - this.radius) / (horizonFade - coreRadius) * 0.28;
-                    } else { this.opacity = 0.02; }
-                }
-                draw() {
-                    const x = centerX + Math.cos(this.angle) * this.radius;
-                    const y = centerY + Math.sin(this.angle) * this.radius * 0.68; 
-                    ctx.beginPath(); ctx.arc(x, y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill();
-                }
-            }
-
-            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-
-            const animate = () => {
-                ctx.globalAlpha = 1.0; ctx.fillStyle = 'rgba(1, 1, 3, 0.08)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                const coreRadius = 120 * dpr; const glowRadius = 340 * dpr;
-                const mainGlow = ctx.createRadialGradient(centerX, centerY, coreRadius, centerX, centerY, glowRadius);
-                mainGlow.addColorStop(0, 'rgba(255, 35, 0, 0.45)');
-                mainGlow.addColorStop(0.25, 'rgba(255, 90, 0, 0.16)');
-                mainGlow.addColorStop(0.6, 'rgba(255, 140, 0, 0.02)');
-                mainGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = mainGlow; ctx.beginPath(); ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2); ctx.fill();
-
-                particles.forEach(p => { p.update(); p.draw(); });
-                ctx.globalAlpha = 1.0; ctx.beginPath(); ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2); ctx.fillStyle = '#010103'; ctx.fill();
-                requestAnimationFrame(animate);
-            };
-
-            window.addEventListener('resize', () => { resizeAndScale(); });
-            animate();
-        });
-    </script>
-</body>
-</html>
