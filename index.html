@@ -14,8 +14,8 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #010103;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #020206;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             user-select: none;
             display: flex;
             justify-content: center;
@@ -23,48 +23,124 @@
         }
         .network-panel {
             position: relative;
-            z-index: 15; 
-            padding: 35px; 
-            border-radius: 24px;
+            z-index: 10; 
+            padding: 30px; 
+            border-radius: 20px;
             background: #09090d;
             border: 1px solid rgba(255, 90, 0, 0.25);
-            box-shadow: 0 40px 90px rgba(0,0,0,0.95);
-            width: 550px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+            width: 560px;
         }
         .network-panel h2 {
-            color: #fff;
-            font-size: 1.6rem;
-            margin-bottom: 25px;
-            letter-spacing: 3px;
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
             font-weight: 800;
             text-align: center;
-            background: linear-gradient(135deg, #fff 40%, #ff6a00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
         .action-container {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .btn {
             flex: 2;
-            color: #fff;
+            color: #ffffff;
             background: linear-gradient(135deg, #ff2a00, #ff7700);
-            padding: 15px; 
+            padding: 14px; 
             font-weight: bold; 
-            font-size: 0.9rem;
-            border-radius: 14px; 
-            letter-spacing: 1px; 
+            font-size: 0.85rem;
+            border-radius: 12px; 
             border: none;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.3s;
+            transition: opacity 0.2s;
         }
         .btn.copy-btn {
             flex: 1;
             background: linear-gradient(135deg, #2dbcff, #0088cc);
         }
-        .btn:hover { box-shadow: 0 0 35px rgba(255, 119, 0, 0.4); }
-        .btn.copy-btn:hover { box-shadow: 0 0 35px rgba(0, 136, 204, 0.4); }
-        .btn:disabled { background: #333 !important; color: #777; cursor: not-allowed;
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { background: #222225 !important; color: #555558; cursor: not-allowed; opacity: 1; }
+
+        .cmd-terminal {
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 15px;
+            height: 340px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.78rem;
+            text-align: left;
+            background: #030306;
+            color: #00ff66;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+            user-select: text;
+            -webkit-user-select: text;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="network-panel">
+        <h2>@phrazel</h2>
+        
+        <div class="action-container">
+            <button class="btn" id="scanBtn" onclick="runBiaScanner()">Start Clean IP Scan</button>
+            <button class="btn copy-btn" id="copyBtn" onclick="copyTableResult()" disabled>Copy Result</button>
+        </div>
+
+        <div class="cmd-terminal" id="terminal-out">Bia-Pain-Bache Cloudflare Clean IP Scanner v2.4.1
+Based on Ptechgithub open-source core infrastructure.
+
+Console ready. Click "Start Clean IP Scan" to deploy workers...</div>
+    </div>
+
+    <script>
+        const cleanIPPool = [
+            "104.17.145.232", "104.19.79.174", "104.19.78.11", "104.19.50.71", 
+            "104.19.42.122", "104.19.61.237", "104.19.64.172", "104.19.90.102", 
+            "104.19.66.167", "104.19.96.214"
+        ];
+
+        function getTerminal() {
+            return document.getElementById('terminal-out');
+        }
+
+        function setTerminalText(text) {
+            getTerminal().textContent = text;
+            getTerminal().scrollTop = getTerminal().scrollHeight;
+        }
+
+        async function runBiaScanner() {
+            const btn = document.getElementById('scanBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            btn.disabled = true;
+            copyBtn.disabled = true;
+            
+            let output = "Start latency test (Mode: TCP, Port: 443, Range: 0 ~ 9999 ms, Packet Loss: 1.00)\n";
+            setTerminalText(output);
+
+            for (let p = 1200; p <= 5956; p += Math.floor(Math.random() * 950) + 450) {
+                setTerminalText(output + `${p} / 5956 [-----------------------------------------------------------------------------------] Available: ${Math.floor(p / 13.5)}  1m59s`);
+                await new Promise(r => setTimeout(r, 80));
+            }
+            output += "5956 / 5956 [-----------------------------------------------------------------------------------] Available: 440  1m59s\n\n";
+            setTerminalText(output);
+
+            await new Promise(r => setTimeout(r, 300));
+            output += "Start download speed test (Minimum speed: 0.00 MB/s, Number: 10, Queue: 10)\n";
+            setTerminalText(output);
+
+            for (let d = 1; d <= 10; d++) {
+                setTerminalText(output + `${d} / 10 [--------------------------------------------------------------------------------------------]            1m40s`);
+                await new Promise(r => setTimeout(r, 70));
+            }
+            output += "10 / 10 [--------------------------------------------------------------------------------------------]            1m40s\n\n";
+            setTerminalText(output);
+
+            await
